@@ -3,6 +3,7 @@
 #include "simple_logger.h"
 #include "gfc_vector.h"
 
+#include "camera.h"
 #include "player.h"
 
 void player_think(Entity *self);
@@ -30,7 +31,7 @@ Entity *player_new()
     0);
     self->state = ES_IDLE;
     self->frame = 0;
-    self->position = vector2d(600,350);
+    self->position = vector2d(64,625);
 
     self->think = player_think;
     self->update = player_update;
@@ -70,6 +71,8 @@ void player_update(Entity *self)
     if (!self)return;
     self->frame += 0.1;
     if (self->frame >= 3)self->frame = 0;
+
+    camera_center_on(self->position);
 
     //vector2d_add(self->position, self->position, self->velocity);
 }

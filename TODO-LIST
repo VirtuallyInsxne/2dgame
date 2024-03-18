@@ -1,0 +1,30 @@
+tile based platforming world
+	- will be planned out
+5 world obstacles / traps
+	- pits of death
+	- spikes
+	- arrow traps
+	- 
+5 player movement abilities
+	- jump
+	- dash
+	- air dash
+	- walljump
+	- wallslide
+Couch co-op with controller support
+
+5 types of monsters
+	- grunt
+	- projectile grunt
+	- flying grunt
+	- wall grunt
+	- boss monster
+Functioning Entity System
+
+Fully interact-able environment
+
+User Interface (HUD, Stats, Messages, menus)
+
+File read / write access (high score list, saved games, saved songs, etc)
+
+README for how to play and see all game features (this should be in the git repo)
