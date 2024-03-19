@@ -4,6 +4,7 @@
 #include "gf2d_graphics.h"
 
 #include "camera.h"
+#include "player.h"
 #include "level.h"
 
 void level_tile_layer_build(Level *level)
@@ -70,17 +71,27 @@ void level_tile_layer_build(Level *level)
 Level *level_load_from_json(const char *filename)
 {
     Level *level = NULL;
+
     SJson *json = NULL;
     SJson *levelJSON = NULL;
+    SJson *colliderJSON = NULL;
     SJson *vertical, *horizontal;
     SJson *item;
+
     const char *background;
     const char *tileSet;
+
     int frame_w, frame_h;
     int frames_per_line;
     int currentTileType;
     int levelWidth = 0, levelHeight = 0;
     int i, j;
+
+    double x, y, w, h;
+
+    /*
+    Creating the Level
+    */
 
     if (!filename)
     {
@@ -161,6 +172,22 @@ Level *level_load_from_json(const char *filename)
     level_tile_layer_build(level);
 
     level_setup_camera(level);
+
+    /*
+    Setting up level colliders
+    */
+    colliderJSON = sj_object_get_value(levelJSON, "colliders");
+
+    if (!colliderJSON)
+    {
+        slog("%s missing 'collider' object", filename);
+        sj_free(levelJSON);
+        return NULL;
+    }
+
+
+
+    sj_free(colliderJSON);
 
     sj_free(levelJSON);
 

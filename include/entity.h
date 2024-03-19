@@ -2,7 +2,9 @@
 #define __ENTITY_H__
 
 #include "gfc_types.h"
+
 #include "gf2d_sprite.h"
+
 
 typedef enum
 {
@@ -14,6 +16,12 @@ typedef enum
     ES_HURT,
     ES_DEATH
 }EntityState;
+
+typedef enum
+{
+    PLAYER_ONE,
+    PLAYER_TWO
+}PlayerNumber;
 
 /**
  *@brief creates the entity struct
@@ -34,9 +42,11 @@ typedef struct Entity_S
     void (*update)(struct Entity_S *self);  /**<a pointer to the update function of the entity*/
     void (*free)(struct Entity_S *self);    /**<a pointer to the free function of the entity*/
 
-    float       health;
+    PlayerNumber playerNum;     /**<player number, can only be player one or player two*/
+    
+    float        health;
 
-    void       *data;                       /**<for additional entity info*/
+    void        *data;                       /**<for additional entity info*/
 }Entity;
 
 /**

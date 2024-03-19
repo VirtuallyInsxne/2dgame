@@ -16,7 +16,8 @@ int main(int argc, char * argv[])
     const Uint8 * keys;
 
     Level *firstLevel; 
-    Entity *player;
+    Entity *playerOne;
+    Entity *playerTwo;
     
     /*program initializtion*/
     init_logger("gf2d.log",0);
@@ -36,8 +37,10 @@ int main(int argc, char * argv[])
     camera_set_size(vector2d(300,180));
     
     /*demo setup*/
-    player = player_new();
+    playerOne = player_new(1);
+    playerTwo = player_new(0);
     firstLevel = level_load_from_json("configs/reglevels/testlevel.level");
+
     /*main game loop*/
     while(!done)
     {
@@ -45,6 +48,7 @@ int main(int argc, char * argv[])
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
 
         entity_system_think();
+
         entity_system_update();
         
         gf2d_graphics_clear_screen();// clears drawing buffers
@@ -60,7 +64,6 @@ int main(int argc, char * argv[])
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
     level_free(firstLevel);
-    entity_free(player);
     slog("---==== END ====---");
     return 0;
 }

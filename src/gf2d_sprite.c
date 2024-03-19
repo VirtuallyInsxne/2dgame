@@ -12,8 +12,8 @@
 
 typedef struct
 {
-    Uint32 max_sprites;
-    Sprite * sprite_list;
+    Uint32  max_sprites;
+    Sprite *sprite_list;
 }SpriteManager;
 
 static SpriteManager sprite_manager;
