@@ -2,9 +2,12 @@
 #define __ENTITY_H__
 
 #include "gfc_types.h"
+#include "gfc_vector.h"
+#include "gfc_shape.h"
 
 #include "gf2d_sprite.h"
 
+#include "level.h"
 
 typedef enum
 {
@@ -29,24 +32,39 @@ typedef enum
 
 typedef struct Entity_S
 {
-    Uint8       _inuse;     /**<a flag to show if the entity is in use*/
+    Uint8                   _inuse;         /**<a flag to show if the entity is in use*/
 
-    Sprite      *sprite;    /**<the sprite of the entity*/
-    float        frame;     /**<the current frame of animation for the sprite*/
-    EntityState  state;     /**<state of the entity including player states*/
+    Level                   *level;
 
-    Vector2D     position;  /**<the position of the entity*/
-    Vector2D     velocity;  /**<the velocity of the entity*/
+    char                    *name;
+    
+    Sprite                  *sprite;        /**<the sprite of the entity*/
+    float                    frame;         /**<the current frame of animation for the sprite*/
+    EntityState              state;         /**<state of the entity including player states*/
+
+    Vector2D                 position;      /**<the position of the entity*/
+    Vector2D                 velocity;      /**<the velocity of the entity*/
+    Vector2D                 acceleration;
+    Vector2D                 dir;
+
+    Uint32                   jmps;
+    Uint32                   jmpCooldown;
+    Uint32                   dashes;
+    Uint32                   dashCooldown;
+
+    PlayerNumber             playerNum;     /**<player number, can only be player one or player two*/
+    
+    float                    health;
+
+    struct Entity_S         *parent;
+
+    Shape                    bounds;
+
+    void                     *data;         /**<for additional entity info*/
 
     void (*think)(struct Entity_S *self);   /**<a pointer to the think function of the entity*/
     void (*update)(struct Entity_S *self);  /**<a pointer to the update function of the entity*/
     void (*free)(struct Entity_S *self);    /**<a pointer to the free function of the entity*/
-
-    PlayerNumber playerNum;     /**<player number, can only be player one or player two*/
-    
-    float        health;
-
-    void        *data;                       /**<for additional entity info*/
 }Entity;
 
 /**
@@ -65,7 +83,7 @@ void entity_clear_all(Entity *ignore);
  * @brief create a blank entity for use
  * @return NULL or error if no room, a blank entity otherwise
  */
-Entity *entity_new();
+Entity *entity_new(char* name);
 
 /**
  * @brief clean up an entity, and free up its spot in memory for further use
@@ -87,5 +105,9 @@ void entity_system_update();
  * @brief run the draw functions for all entities
  */
 void entity_system_draw();
+
+Shape entity_get_shape(Entity *self);
+
+Shape entity_get_shape_after_move(Entity *self);
 
 #endif

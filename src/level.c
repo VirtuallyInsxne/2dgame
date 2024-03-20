@@ -7,6 +7,18 @@
 #include "player.h"
 #include "level.h"
 
+static Level *activeLevel = NULL;
+
+Level *level_get_active_level()
+{
+    return activeLevel;
+}
+
+void level_set_active_level(Level *level)
+{
+    activeLevel = level;
+}
+
 void level_tile_layer_build(Level *level)
 {
     int i, j, index;
@@ -25,11 +37,11 @@ void level_tile_layer_build(Level *level)
     level->tileLayer = gf2d_sprite_new();
 
     level->tileLayer->surface = gf2d_graphics_create_surface(
-        level->levelWidth * level->tileSet->frame_w,
-        level->levelHeight * level->tileSet->frame_h);
+        75 * level->tileSet->frame_w,
+        45 * level->tileSet->frame_h);
 
-    level->tileLayer->frame_w = level->levelWidth * level->tileSet->frame_w;
-    level->tileLayer->frame_h = level->levelHeight * level->tileSet->frame_h;
+    level->tileLayer->frame_w = 75 * level->tileSet->frame_w;
+    level->tileLayer->frame_h = 45 * level->tileSet->frame_h;
 
     if (!level->tileLayer->surface)
     {
@@ -37,16 +49,16 @@ void level_tile_layer_build(Level *level)
         return;
     }
 
-    for (i = 0; i < level->levelHeight; i++)
+    for (i = 0; i < 45; i++)
     {
-        for (j = 0; j < level->levelWidth; j++)
+        for (j = 0; j < 75; j++)
         {
-            index = j + (i * level->levelWidth);
+            index = j + (i * 75);
 
             if (level->tileMap[index] == 0)continue;
 
-            position.x = j*level->tileSet->frame_w;
-            position.y = i*level->tileSet->frame_h;
+            position.x = j * level->tileSet->frame_w;
+            position.y = i * level->tileSet->frame_h;
             frame = level->tileMap[index] - 1;
 
             gf2d_sprite_draw_to_surface(
@@ -66,6 +78,8 @@ void level_tile_layer_build(Level *level)
         slog("failed to convert level tile layer to texture");
         return;
     }
+
+    level_build_clip_space(level);
 }
 
 Level *level_load_from_json(const char *filename)
@@ -74,24 +88,29 @@ Level *level_load_from_json(const char *filename)
 
     SJson *json = NULL;
     SJson *levelJSON = NULL;
-    SJson *colliderJSON = NULL;
+    SJson *playersJSON = NULL;
+    SJson *player1, *player2;
     SJson *vertical, *horizontal;
     SJson *item;
+
+    Entity *playerOne, *playerTwo;
+
+    Vector2D player1pos, player2pos;
 
     const char *background;
     const char *tileSet;
 
+    float player1posx, player1posy;
+    float player2posx, player2posy;
+
     int frame_w, frame_h;
+    int tileSize;
     int frames_per_line;
     int currentTileType;
     int levelWidth = 0, levelHeight = 0;
     int i, j;
 
     double x, y, w, h;
-
-    /*
-    Creating the Level
-    */
 
     if (!filename)
     {
@@ -127,6 +146,7 @@ Level *level_load_from_json(const char *filename)
     horizontal = sj_array_get_nth(vertical, 0);
     levelHeight = sj_array_get_count(vertical);
     levelWidth = sj_array_get_count(horizontal);
+
     level = level_new(levelWidth, levelHeight);
 
     if (!level)
@@ -158,9 +178,12 @@ Level *level_load_from_json(const char *filename)
     level->background = gf2d_sprite_load_image(background);
 
     tileSet = sj_object_get_value_as_string(levelJSON, "tileSet");
+    sj_object_get_value_as_int(levelJSON, "tileSize", &tileSize);
     sj_object_get_value_as_int(levelJSON, "frame_w", &frame_w);
     sj_object_get_value_as_int(levelJSON, "frame_h", &frame_h);
     sj_object_get_value_as_int(levelJSON, "frames_per_line", &frames_per_line);
+
+    level->tileSize = vector2d(tileSize, tileSize);
 
     level->tileSet = gf2d_sprite_load_all(
         tileSet,
@@ -171,25 +194,38 @@ Level *level_load_from_json(const char *filename)
 
     level_tile_layer_build(level);
 
-    level_setup_camera(level);
+    playersJSON = sj_object_get_value(levelJSON, "players");
 
-    /*
-    Setting up level colliders
-    */
-    colliderJSON = sj_object_get_value(levelJSON, "colliders");
-
-    if (!colliderJSON)
+    if (!playersJSON)
     {
-        slog("%s missing 'collider' object", filename);
+        slog("failed to load players object");
         sj_free(levelJSON);
         return NULL;
     }
 
+    player1 = sj_object_get_value(playersJSON, "playerOne");
+    player2 = sj_object_get_value(playersJSON, "playerTwo");
 
+    if ((!player1) || (!player2))
+    {
+        slog("Failed to create player characters");
+        sj_free(playersJSON);
+        return NULL;
+    }
 
-    sj_free(colliderJSON);
+    sj_object_get_value_as_float(player1, "x", &player1posx);
+    sj_object_get_value_as_float(player1, "y", &player1posy);
 
-    sj_free(levelJSON);
+    sj_object_get_value_as_float(player2, "x", &player2posx);
+    sj_object_get_value_as_float(player2, "y", &player2posy);
+
+    player1pos = vector2d(player1posx, player1posy);
+    player2pos = vector2d(player2posx, player2posy);
+
+    playerOne = player_new(1, level, player1pos);
+    playerTwo = player_new(0, level, player2pos);
+
+    level_setup_camera(level);
 
     sj_free(json);
 
@@ -197,13 +233,13 @@ Level *level_load_from_json(const char *filename)
 
 }
 
-Level *level_new(Uint32 levelWidth, Uint32 levelHeight)
+Level *level_new(Uint32 width, Uint32 height)
 {    
     Level *level;
 
-    if((!levelWidth)||(!levelHeight))
+    if((!width)||(!height))
     {
-        slog("cannot make a world with zero width or height");
+        slog("cannot make a level with zero width or height");
         return NULL;
     }
 
@@ -214,9 +250,11 @@ Level *level_new(Uint32 levelWidth, Uint32 levelHeight)
         return NULL;
     }
 
-    level->tileMap = gfc_allocate_array(sizeof(Uint8), (levelHeight * levelWidth));
-    level->levelHeight = levelHeight;
-    level->levelWidth = levelWidth;
+    level->tileMap = gfc_allocate_array(sizeof(Uint8), (height * width));
+    level->levelSize.y = height;
+    level->levelSize.x = width;
+
+    level->shapes = gfc_list_new();
 
     return level;
 }
@@ -225,10 +263,11 @@ void level_free(Level *level)
 {
     if (!level)return;
 
-    gf2d_sprite_free(level->background);
-    gf2d_sprite_free(level->tileSet);
-    gf2d_sprite_free(level->tileLayer);
-    free(level->tileMap); 
+    if (level->tileSet)gf2d_sprite_free(level->tileSet);
+    if (level->tileLayer)gf2d_sprite_free(level->tileLayer);
+    if (level->tileMap)free(level->tileMap);
+    gfc_list_foreach(level->shapes,free);
+    gfc_list_delete(level->shapes);
     free(level);
 }
 
@@ -257,4 +296,58 @@ void level_setup_camera(Level *level)
     camera_set_bounds(gfc_rect(0, 0, level->tileLayer->surface->w, level->tileLayer->surface->h));
     camera_enable_binding(1);
     camera_apply_bounds();
+}
+
+int level_shape_clip(Level *level, Shape shape)
+{
+    int i, c;
+    Shape *clip;
+
+    if (!level || !level->shapes) return 0;
+
+    c = gfc_list_get_count(level->shapes);
+
+    for (i = 0; i < c; i++)
+    {
+        clip = gfc_list_get_nth(level->shapes, i);
+
+        if (!clip) continue;
+
+        // Check for overlap between the given shape and the current clip shape
+        if (gfc_shape_overlap(*clip, shape)) return 1; // Collision detected
+    }
+
+    return 0; // No collision detected
+}
+
+
+void level_build_clip_space(Level *level)
+{
+    Shape *shape;
+
+    int i ,j, index = 0;
+
+    if (!level)return;
+
+    for (i = 0; i < 45; i++)
+    {
+        for (j = 0; j < 75; j++)
+        {
+            index = j + (i * 75);
+
+            if (level->tileMap[index] == 0) continue;
+
+            shape = gfc_allocate_array(sizeof(Shape), 1);
+
+            if (!shape)continue;
+
+            float x = (float)(j * level->tileSet->frame_w); // Adjusted based on frame width
+            float y = (float)(i * level->tileSet->frame_h); // Adjusted based on frame height
+            float w = (float)(level->tileSet->frame_w);     // Width of the shape
+            float h = (float)(level->tileSet->frame_h);     // Height of the shape
+            
+            *shape = gfc_shape_rect(x, y, w, h);
+            gfc_list_append(level->shapes, shape);
+        }
+    }
 }

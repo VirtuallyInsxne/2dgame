@@ -1,6 +1,11 @@
 #include "simple_logger.h"
 
+#include "gfc_shape.h"
+
+#include "gf2d_draw.h"
+
 #include "camera.h"
+#include "level.h"
 #include "entity.h"
 
 typedef struct
@@ -33,13 +38,14 @@ void entity_system_init(Uint32 max)
     }
     _entity_manager.entity_max = max;
     atexit(entity_system_close);
+    slog("entity system initialized");
 }
 
 void entity_system_close()
 {
     entity_clear_all(NULL);
     if (_entity_manager.entity_list)free(_entity_manager.entity_list);
-    memset(&_entity_manager, 0, sizeof(EntityManager));
+    slog("entity system closed");
 }
 
 void entity_clear_all(Entity *ignore)
@@ -54,7 +60,7 @@ void entity_clear_all(Entity *ignore)
     }
 }
 
-Entity *entity_new()
+Entity *entity_new(char *name)
 {
     int i;
 
@@ -63,6 +69,8 @@ Entity *entity_new()
         if (_entity_manager.entity_list[i]._inuse)continue;
         memset(&_entity_manager.entity_list[i], 0, sizeof(Entity));
         _entity_manager.entity_list[i]._inuse = 1;
+        _entity_manager.entity_list[i].parent = &_entity_manager.entity_list[i];
+        _entity_manager.entity_list[i].name = name;
 
         return &_entity_manager.entity_list[i];
     }
@@ -145,4 +153,29 @@ void entity_system_draw()
         if (!_entity_manager.entity_list[i]._inuse)continue;
         entity_draw(&_entity_manager.entity_list[i]);
     }
+}
+
+Shape entity_get_shape_after_move(Entity *self)
+{
+    Shape bounds = {0};
+
+    if (!self)return bounds;
+
+    gfc_shape_copy(&bounds,self->bounds);
+    gfc_shape_move(&bounds,self->position);
+    gfc_shape_move(&bounds,self->velocity);
+    
+    return bounds;
+}
+
+Shape entity_get_shape(Entity *self)
+{
+    Shape bounds = {0};
+
+    if (!self)return bounds;
+
+    gfc_shape_copy(&bounds,self->bounds);
+    gfc_shape_move(&bounds,self->position);
+
+    return bounds;
 }

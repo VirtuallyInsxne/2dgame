@@ -1,6 +1,8 @@
 #ifndef __LEVEL_H__
 #define __LEVEL_H__
 
+#include "gfc_list.h"
+
 #include "gf2d_sprite.h"
 
 typedef struct
@@ -8,16 +10,17 @@ typedef struct
     Sprite      *background;
     Sprite      *tileLayer;
     Sprite      *tileSet;
-    Uint32       levelWidth;
-    Uint32       levelHeight;
+    Vector2D     levelSize;
+    Vector2D     tileSize;
     Uint8       *tileMap;
+    List        *shapes;
 }Level;
 
 /**
  * @brief allocate space for empty level
  * @return NULL on error, empty level otherwise
 */
-Level *level_new();
+Level *level_new(Uint32 width, Uint32 height);
 
 Level *level_load_from_json(const char *filename);
 
@@ -34,5 +37,15 @@ void level_free(Level *level);
 void level_draw(Level *level);
 
 void level_setup_camera(Level *level);
+
+Level *level_get_active_level();
+
+void level_set_active_level(Level *level);
+
+void level_tile_layer_build(Level *level);
+
+int level_shape_clip(Level *level, Shape shape);
+
+void level_build_clip_space(Level *level);
 
 #endif
