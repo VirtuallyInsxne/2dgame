@@ -8,7 +8,7 @@
 
 ## PERSONAL DELIVERABLES
 - [X] tile based platforming world (You'll see it almost immediately)
-- [?] 5 world obstacles / traps (got like maybe 3 out of 5)
+- [X] 5 world obstacles / traps (got like maybe 3 out of 5)
    - Pit of death (without the death)
    - Things to jump on
    - gaps and vertical platforming challenge
