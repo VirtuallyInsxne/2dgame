@@ -1,25 +1,25 @@
 # Untitled 2D Coop Platfdrmer Game
 ## COMMON DELIVERABLES
-[X] Functioning Entity System
-[X] Fully interact-able environment (Collides with every tile within the world)
-[X] User Interface (small main menu that works and a dash counter)
-[X] File read / write access (The information does save but the only problem is that it doesn't load accurately]
-[X] README for how to play and see all game features 
+- [X] Functioning Entity System
+- [X] Fully interact-able environment (Collides with every tile within the world)
+- [X] User Interface (small main menu that works and a dash counter)
+- [X] File read / write access (The information does save but the only problem is that it doesn't load accurately]
+- [X] README for how to play and see all game features 
 
 ## PERSONAL DELIVERABLES
-[X] tile based platforming world (You'll see it almost immediately)
-[?] 5 world obstacles / traps (got like maybe 3 out of 5)
+- [X] tile based platforming world (You'll see it almost immediately)
+- [?] 5 world obstacles / traps (got like maybe 3 out of 5)
    - Pit of death (without the death)
    - Things to jump on
    - gaps and vertical platforming challenge
-[X] 5 player movement abilities (all of this needs further work but it does move the character)
+- [X] 5 player movement abilities (all of this needs further work but it does move the character)
    - Walk
    - Jump
    - Dash
    - Air Dash
    - Wall Jump
-[X] Couch co-op with controller support (try the game with an xbox controller)
-[] 5 types of monsters
+- [X] Couch co-op with controller support (try the game with an xbox controller)
+- [] 5 types of monsters
 
 # Build Process
 
