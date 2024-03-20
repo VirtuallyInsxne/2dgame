@@ -106,6 +106,8 @@ void entity_system_update();
  */
 void entity_system_draw();
 
+Entity *entity_get_entity_by_name(char *name);
+
 Shape entity_get_shape(Entity *self);
 
 Shape entity_get_shape_after_move(Entity *self);

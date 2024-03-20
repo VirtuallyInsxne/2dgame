@@ -101,36 +101,6 @@ void player_think(Entity *self)
             vector2d_normalize(&dir);
             vector2d_scale(self->velocity, dir, 2);
         }
-        else if ((SDL_JoystickGetAxis(playerOne, 1) < -32700) && (SDL_JoystickGetAxis(playerOne, 0) > 32700)) // UP RIGHT
-        {
-            dir.x = 1;
-            dir.y = -1;
-            vector2d_normalize(&dir);
-            vector2d_scale(self->dir, dir, 2);
-
-        }
-        else if ((SDL_JoystickGetAxis(playerOne, 1) > 32700) && (SDL_JoystickGetAxis(playerOne, 0) > 32700)) // DOWN RIGHT
-        {
-            dir.x = 1;
-            vector2d_normalize(&dir);
-            vector2d_scale(self->velocity, dir, 2);
-
-        }
-        else if ((SDL_JoystickGetAxis(playerOne, 1) < -32700) && (SDL_JoystickGetAxis(playerOne, 0) < -32700)) // UP LEFT
-        {
-            dir.x = -1;
-            dir.y = -1;
-            vector2d_normalize(&dir);
-            vector2d_scale(self->dir, dir, 2);
-
-        }
-        else if ((SDL_JoystickGetAxis(playerOne, 1) > 32700) && (SDL_JoystickGetAxis(playerOne, 0) < -32700)) // DOWN LEFT
-        {
-            dir.x = -1;
-            vector2d_normalize(&dir);
-            vector2d_scale(self->velocity, dir, 2);
-
-        }
         else if(SDL_JoystickGetButton(playerOne, 0) && self->jmpCooldown == 0 && self->jmps > 0) // jumps
         {
             self->state = ES_JUMP;
@@ -139,7 +109,7 @@ void player_think(Entity *self)
             vector2d_normalize(&dir);
             vector2d_scale(self->velocity, dir, 10);
         }
-        else if(SDL_JoystickGetButton(playerOne, 2) && self->dashes > 0) // jumps
+        else if(SDL_JoystickGetButton(playerOne, 2) && self->dashes > 0) // dashes
         {
             slog("Pressing X");
             self->state = ES_DASH;
@@ -155,21 +125,7 @@ void player_think(Entity *self)
     }
     else
     {
-        if (SDL_JoystickGetAxis(playerTwo, 1) < -32700) // UP
-        {
-            self->state = ES_WALK;
-            dir.y = -1;
-            vector2d_normalize(&dir);
-            vector2d_scale(self->velocity, dir, 2);
-        }
-        else if (SDL_JoystickGetAxis(playerTwo, 1) > 32700) // DOWN
-        {
-            self->state = ES_WALK;
-            dir.y = 1;
-            vector2d_normalize(&dir);
-            vector2d_scale(self->velocity, dir, 2);
-        }
-        else if (SDL_JoystickGetAxis(playerTwo, 0) < -32700) // LEFT
+        if (SDL_JoystickGetAxis(playerTwo, 0) < -32700) // LEFT
         {
             self->state = ES_WALK;
             dir.x = -1;
@@ -183,6 +139,23 @@ void player_think(Entity *self)
             vector2d_normalize(&dir);
             vector2d_scale(self->velocity, dir, 2);
         }
+        else if(SDL_JoystickGetButton(playerTwo, 0) && self->jmpCooldown == 0 && self->jmps > 0) // jumps
+        {
+            self->state = ES_JUMP;
+            self->jmps -= 1;
+            dir.y = -1;
+            vector2d_normalize(&dir);
+            vector2d_scale(self->velocity, dir, 10);
+        }
+        else if(SDL_JoystickGetButton(playerTwo, 2) && self->dashes > 0) // dashes
+        {
+            slog("Pressing X");
+            self->state = ES_DASH;
+            self->dashes -= 1;
+            dir.x = 1;
+            vector2d_normalize(&dir);
+            vector2d_scale(self->velocity, dir, 10);
+        }
         else
         {
             self->state = ES_IDLE;
@@ -192,7 +165,6 @@ void player_think(Entity *self)
 
 void player_update(Entity *self)
 {
-    int i;
     Vector2D gravity;
 
     gravity = vector2d(0, 1);
@@ -205,6 +177,8 @@ void player_update(Entity *self)
 
     if (level_shape_clip(level_get_active_level(), entity_get_shape_after_move(self)))
     {
+        if (self->position.y >= 636) self->position.y = 636;
+
         self->jmps = 2;
         self->dashes = 1;
         return;
@@ -225,6 +199,7 @@ void player_update(Entity *self)
             self->jmpCooldown = 10;
             break;
         case ES_DASH:
+            vector2d_sub(self->velocity, self->velocity, gravity);
             vector2d_add(self->position, self->position, self->velocity);
             break;
         case ES_DEATH:

@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "simple_logger.h"
 
@@ -51,6 +52,8 @@ int main(int argc, char * argv[])
     /*demo setup*/
     firstLevel = level_load_from_json("configs/reglevels/testlevel.level");
     level_set_active_level(firstLevel);
+    playerOne = entity_get_entity_by_name("playerOne");
+    playerTwo = entity_get_entity_by_name("playerTwo");
     playerOneInput =  SDL_JoystickOpen(0);
     /*main game loop*/
     while(!done)
@@ -68,6 +71,11 @@ int main(int argc, char * argv[])
                 gf2d_sprite_draw_image(sprite,vector2d(0,0));
                 font_draw_text("Press A to Start Game",FS_small, GFC_COLOR_RED ,vector2d(10,10));
                 font_draw_text("Press B to Exit Game",FS_small, GFC_COLOR_RED ,vector2d(10,40));
+                
+                if (access("savedata.save", F_OK) != -1)
+                {
+                    font_draw_text("Press Start to Load Game",FS_small, GFC_COLOR_RED ,vector2d(10,70));
+                }
 
             gf2d_graphics_next_frame();// render current draw frame and skip to the next frame
 
@@ -76,6 +84,17 @@ int main(int argc, char * argv[])
                 mainMenu = 0;
                 camera_set_size(vector2d(300,180));
             }
+            else if(SDL_JoystickGetButton(playerOneInput, 6))
+            {
+                if (access("savedata.save", F_OK) != -1)
+                {
+                    slog("Pressing start");
+                    firstLevel = level_load_from_json("savedata.save");
+                    level_set_active_level(firstLevel);
+                    level_setup_camera(firstLevel);
+                    mainMenu = 0;
+                }
+            }
             else if (SDL_JoystickGetButton(playerOneInput, 1)) done = 1;
         }
         else
@@ -83,6 +102,7 @@ int main(int argc, char * argv[])
             SDL_PumpEvents();   // update SDL's internal event structures
             SDL_Delay(15);
             keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
+            font_cleanup();
 
             entity_system_think();
 
@@ -102,8 +122,11 @@ int main(int argc, char * argv[])
 
             gf2d_graphics_next_frame();
 
-            if (keys[SDL_SCANCODE_ESCAPE])done = 1;
-
+            if (keys[SDL_SCANCODE_ESCAPE])
+            {
+                level_save_data_to_copy("configs/reglevels/testlevel.level", playerOne->position, playerTwo->position);
+                done = 1;
+            }
         }
     }
     level_free(firstLevel);

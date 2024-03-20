@@ -1,3 +1,6 @@
+#include <unistd.h>
+#include <stdlib.h> 
+
 #include "simple_logger.h"
 #include "simple_json.h"
 
@@ -93,8 +96,6 @@ Level *level_load_from_json(const char *filename)
     SJson *vertical, *horizontal;
     SJson *item;
 
-    Entity *playerOne, *playerTwo;
-
     Vector2D player1pos, player2pos;
 
     const char *background;
@@ -109,8 +110,6 @@ Level *level_load_from_json(const char *filename)
     int currentTileType;
     int levelWidth = 0, levelHeight = 0;
     int i, j;
-
-    double x, y, w, h;
 
     if (!filename)
     {
@@ -222,8 +221,8 @@ Level *level_load_from_json(const char *filename)
     player1pos = vector2d(player1posx, player1posy);
     player2pos = vector2d(player2posx, player2posy);
 
-    playerOne = player_new(1, level, player1pos);
-    playerTwo = player_new(0, level, player2pos);
+    player_new(1, level, player1pos);
+    player_new(0, level, player2pos);
 
     level_setup_camera(level);
 
@@ -350,4 +349,44 @@ void level_build_clip_space(Level *level)
             gfc_list_append(level->shapes, shape);
         }
     }
+}
+
+void level_save_data_to_copy(const char *filename, Vector2D player1pos, Vector2D player2pos) {
+    SJson *data = sj_copy(sj_load(filename));
+
+    SJson *levelData = sj_object_get_value(data, "level");
+
+    SJson *playerData = sj_object_get_value(levelData, "players");
+
+    // Create player one's position object
+    SJson *player1 = sj_object_get_value(playerData, "playerOne");
+    sj_object_delete_key(player1, "x");
+    sj_object_delete_key(player1, "y");
+    sj_object_insert(player1, "x", sj_new_float(player1pos.x));
+    sj_object_insert(player1, "y", sj_new_float(player1pos.y));
+
+    // Create player two's position object
+    SJson *player2 = sj_object_get_value(playerData, "playerTwo");
+    sj_object_delete_key(player2, "x");
+    sj_object_delete_key(player2, "y");
+    sj_object_insert(player2, "x", sj_new_float(player2pos.x));
+    sj_object_insert(player2, "y", sj_new_float(player2pos.y));
+
+    // Insert player objects into the data object
+    sj_object_insert(playerData, "playerOne", player1);
+    sj_object_insert(playerData, "playerTwo", player2);
+    sj_object_insert(data, "players", playerData);
+
+    if (access("savedata.save", F_OK) != -1) {
+        if (remove("savedata.save") != 0) {
+            perror("Error deleting file");
+            exit(EXIT_FAILURE);
+        }
+    }
+    
+    // Save data to a JSON file
+    sj_save(data, "savedata.save");
+
+    // Clean up memory
+    sj_object_free(data);
 }

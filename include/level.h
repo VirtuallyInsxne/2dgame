@@ -48,4 +48,6 @@ int level_shape_clip(Level *level, Shape shape);
 
 void level_build_clip_space(Level *level);
 
+void level_save_data_to_copy(const char *filename, Vector2D player1pos, Vector2D player2pos);
+
 #endif

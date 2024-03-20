@@ -155,6 +155,17 @@ void entity_system_draw()
     }
 }
 
+Entity *entity_get_entity_by_name(char *name)
+{
+    int i;
+
+    for (i = 0; i < _entity_manager.entity_max; i++)
+    {
+        if (!_entity_manager.entity_list[i]._inuse) continue;
+        if (strcmp(_entity_manager.entity_list[i].name, name)) return &_entity_manager.entity_list[i];
+    }
+}
+
 Shape entity_get_shape_after_move(Entity *self)
 {
     Shape bounds = {0};
