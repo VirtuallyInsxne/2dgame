@@ -1,12 +1,25 @@
-# gameframework2d (GF2D)
-a collection of utlitity functions designed to facilitate creating 2D games with SDL2
-This project is specifically intended to function as an educational tool for my students taking 2D Game Programming.
+# Untitled 2D Coop Platfdrmer Game
+## COMMON DELIVERABLES
+- [X] Functioning Entity System
+- [X] Fully interact-able environment (Collides with every tile within the world)
+- [X] User Interface (small main menu that works and a dash counter)
+- [X] File read / write access (The information does save but the only problem is that it doesn't load accurately]
+- [X] README for how to play and see all game features 
 
-FOR FULL FEATURES CHECKOUT THE MASTER BRANCH
-Students: Don't do that.  You are not ready.... yet.
-
-The main branch is kept deliberately minimal to allow students to build out systems as they are learning.
-Other branches have more complete system: Collisions, Windows, Armatures, Entities, Particles...
+## PERSONAL DELIVERABLES
+- [X] tile based platforming world (You'll see it almost immediately)
+- [ ] 5 world obstacles / traps (got like maybe 3 out of 5)
+   - Pit of death (without the death)
+   - Things to jump on
+   - gaps and vertical platforming challenge
+- [X] 5 player movement abilities (all of this needs further work but it does move the character)
+   - Walk
+   - Jump
+   - Dash
+   - Air Dash
+   - Wall Jump
+- [X] Couch co-op with controller support (try the game with an xbox controller)
+- [ ] 5 types of monsters
 
 # Build Process
 
