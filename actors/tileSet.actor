@@ -1,0 +1,9 @@
+{
+    "actor":
+    {
+        "sprite": "images/obsidianblock.png",
+        "frameWidth": 16,
+        "frameHeight": 16,
+        "framesPerLine": 1
+    }
+}

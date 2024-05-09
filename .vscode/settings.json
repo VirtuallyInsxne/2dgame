@@ -6,6 +6,21 @@
     "files.associations": {
         "*.level": "json",
         "collision.h": "c",
-        "entity.h": "c"
+        "entity.h": "c",
+        "gf2d_dynamic_body.h": "c",
+        "gfc_shape.h": "c",
+        "gf2d_sprite.h": "c",
+        "player.h": "c",
+        "gf2d_draw.h": "c",
+        "gfc_vector.h": "c",
+        "gf2d_particle_effects.h": "c",
+        "camera.h": "c",
+        "level.h": "c",
+        "simple_json.h": "c",
+        "entity_common.h": "c",
+        "gf2d_particles.h": "c",
+        "particle_effects.h": "c",
+        "simple_logger.h": "c",
+        "space.h": "c"
     }
 }

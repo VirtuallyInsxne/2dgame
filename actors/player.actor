@@ -1,0 +1,9 @@
+{
+    "actor":
+    {
+        "sprite": "/images/dino_models/male/kira/ghost/idle.png",
+        "frameWidth": 24,
+        "frameHeight": 24,
+        "framesPerLine": 3
+    }
+}

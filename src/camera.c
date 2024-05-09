@@ -4,71 +4,86 @@
 
 typedef struct
 {
-    Vector2D position;
-    Vector2D size;          // Width and Height of the screen
-    Rect     bounds;        // Keep the camera in these bounds
-    Bool     bindCamera;    // if true keep the camera in bounds
+    Rect view;
+    Rect bounds;
 }Camera;
+static Camera _camera = {0};
 
-static Camera _theCamera = {0};
-
-Vector2D camera_get_position()
+void gf2d_camera_set_dimensions(Sint32 x,Sint32 y,Uint32 w,Uint32 h)
 {
-    return _theCamera.position;
+    gfc_rect_set(_camera.view,x,y,w,h);
 }
 
-void camera_set_position(Vector2D position)
+Rect gf2d_camera_get_bounds()
 {
-    vector2d_copy(_theCamera.position, position);
-
-    if (_theCamera.bindCamera) camera_apply_bounds();
+    return _camera.bounds;
 }
 
-Vector2D camera_get_offset()
+Rect gf2d_camera_get_dimensions()
 {
-    return vector2d(-_theCamera.position.x, -_theCamera.position.y);
+    return _camera.view;
 }
 
-void camera_set_size(Vector2D size)
+Vector2D gf2d_camera_get_position()
 {
-    vector2d_copy(_theCamera.size, size);
+    return vector2d(_camera.view.x,_camera.view.y);
 }
 
-void camera_set_bounds(Rect bounds)
+Vector2D gf2d_camera_get_size()
 {
-    gfc_rect_copy(_theCamera.bounds, bounds);
+    return vector2d(_camera.view.w,_camera.view.h);
 }
 
-void camera_enable_binding(Bool bindCamera)
+Vector2D gf2d_camera_get_offset()
 {
-    _theCamera.bindCamera = bindCamera;
+    return vector2d(-_camera.view.x,-_camera.view.y);
 }
 
-void camera_apply_bounds()
+void gf2d_camera_set_bounds(Sint32 x,Sint32 y,Uint32 w,Uint32 h)
 {
-    if (_theCamera.position.x < _theCamera.bounds.x) _theCamera.position.x = _theCamera.bounds.x;
+    gfc_rect_set(_camera.bounds,x,y,w,h);
+}
 
-    if (_theCamera.position.y < _theCamera.bounds.y) _theCamera.position.y = _theCamera.bounds.y;
-
-    if ((_theCamera.position.x + _theCamera.size.x) > (_theCamera.bounds.x + _theCamera.bounds.w))
+void gf2d_camera_bind()
+{
+    if (_camera.view.w > _camera.bounds.w)
     {
-        _theCamera.position.x = (_theCamera.bounds.x + _theCamera.bounds.w) - _theCamera.size.x;
+        _camera.view.x = -(_camera.view.w - _camera.bounds.w)/2;
     }
-
-    if ((_theCamera.position.y + _theCamera.size.y) > (_theCamera.bounds.y + _theCamera.bounds.h))
+    else
     {
-        _theCamera.position.y = (_theCamera.bounds.y + _theCamera.bounds.h) - _theCamera.size.y;
+        if (_camera.view.x < _camera.bounds.x)_camera.view.x = _camera.bounds.x;
+        if (_camera.view.x + _camera.view.w > _camera.bounds.x + _camera.bounds.w)_camera.view.x = _camera.bounds.x + _camera.bounds.w - _camera.view.w;
+    }
+    if (_camera.view.h > _camera.bounds.h)
+    {
+        _camera.view.y = -(_camera.view.h - _camera.bounds.h)/2;
+    }
+    else
+    {
+        if (_camera.view.y < _camera.bounds.y)_camera.view.y = _camera.bounds.y;
+        if (_camera.view.y + _camera.view.h > _camera.bounds.y + _camera.bounds.h)_camera.view.y = _camera.bounds.y + _camera.bounds.h - _camera.view.h;
     }
 }
 
-void camera_center_on(Vector2D target)
+void gf2d_camera_move(Vector2D v)
 {
-    Vector2D position;
-    
-    position.x = target.x - (_theCamera.size.x * 0.5);
-    position.y = target.y - (_theCamera.size.y * 0.5);
-
-    camera_set_position(position);
-
-    if (_theCamera.bindCamera) camera_apply_bounds();
+    vector2d_add(_camera.view,v,_camera.view);
 }
+
+void gf2d_camera_set_focus(Vector2D position)
+{
+    gf2d_camera_set_position(vector2d(position.x - (_camera.view.w/2),position.y - (_camera.view.h/2)));
+}
+
+void gf2d_camera_set_position(Vector2D position)
+{
+    vector2d_copy(_camera.view,position);
+}
+
+void gf2d_camera_set_position_absolute(Vector2D position)
+{
+    vector2d_copy(_camera.view,position);
+}
+
+/*eol@eof*/

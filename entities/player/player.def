@@ -1,0 +1,17 @@
+{
+    "player":
+    {
+        "name": "player",
+        "state": "idle",
+        "jump_height": 40,
+        "jump_delay": 5,
+        "health": 100,
+        "healthmax": 100
+    },
+    "physics":
+    {
+        "gravity": 1,
+        "worldclip": 0,
+        "rect": [0, 0, 20, 20]
+    }
+}
