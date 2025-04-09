@@ -1,4 +1,4 @@
-# Untitled 2D Coop Platfdrmer Game
+# Untitled 2D Coop Platformer Game
 ## COMMON DELIVERABLES
 - [X] Functioning Entity System
 - [X] Fully interact-able environment (Collides with every tile within the world)
